@@ -1,5 +1,4 @@
-// time synchronized
-
+//
 // The MIT License (MIT)
 //
 // Copyright (c) 2019 Livox. All rights reserved.
@@ -39,16 +38,6 @@
 #include <livox_ros_driver/CustomPoint.h>
 #include "lds_lidar.h"
 #include "lds_lvx.h"
-
-
-// Modify from https://github.com/ziv-lin/livox_ros_driver_for_R2LIVE
-
-/****** Modified: add variables to change timestamp ******/
-double g_ros_init_start_time = -3e8;
-double init_lidar_tim = 3e10;
-double init_ros_time = 0;
-double skip_frame = 10;
-/*********************************************************/
 
 namespace livox_ros {
 
@@ -248,26 +237,6 @@ uint32_t Lddc::PublishPointcloud2(LidarDataQueue *queue, uint32_t packet_num,
   cloud.is_bigendian = false;
   cloud.is_dense     = true;
   cloud.data.resize(cloud.row_step); /** Adjust to the real size */
-
-  /****** Modified: Setup ros timestamp to system base ******/
-  if (1)
-  {
-    if (skip_frame)
-    {
-      skip_frame--;
-      init_ros_time = ros::Time::now().toSec();
-      init_lidar_tim = timestamp;
-      g_ros_init_start_time = timestamp;
-      ROS_INFO("========================");
-      ROS_INFO("Init time stamp = %lf", g_ros_init_start_time);
-      ROS_INFO("========================");
-    }
-    // change timestamp in function PublishPointcloud2
-    cloud.header.stamp = ros::Time((timestamp - init_lidar_tim) / 1e9 + init_ros_time);
-  }
-  /**********************************************************/
-
-
   ros::Publisher *p_publisher = Lddc::GetCurrentPublisher(handle);
   if (kOutputToRos == output_type_) {
     p_publisher->publish(cloud);
@@ -492,24 +461,6 @@ uint32_t Lddc::PublishCustomPointcloud(LidarDataQueue *queue,
     last_timestamp = timestamp;
     ++published_packet;
   }
-
-  /****** Modified: Setup ros timestamp to system base ******/
-  if (1)
-  {
-    if (skip_frame)
-    {
-      skip_frame--;
-      init_ros_time = ros::Time::now().toSec();
-      init_lidar_tim = timestamp;
-      g_ros_init_start_time = timestamp;
-      ROS_INFO("========================");
-      ROS_INFO("Init time stamp = %lf", g_ros_init_start_time);
-      ROS_INFO("========================");
-    }
-    // change timestamp in function PublishCustomPointcloud
-    livox_msg.header.stamp = ros::Time((timestamp - init_lidar_tim - packet_offset_time )  / 1e9 + init_ros_time);
-  }
-  /**********************************************************/
 
   ros::Publisher *p_publisher = Lddc::GetCurrentPublisher(handle);
   if (kOutputToRos == output_type_) {
@@ -741,17 +692,3 @@ void Lddc::PrepareExit(void) {
 }
 
 }  // namespace livox_ros
-Footer
-© 2023 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
