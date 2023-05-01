@@ -1,4 +1,4 @@
-// time synchronized
+// ros_time
 
 // The MIT License (MIT)
 //
