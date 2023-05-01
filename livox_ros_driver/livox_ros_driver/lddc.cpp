@@ -1,4 +1,4 @@
-// ros_time
+// ros_time_edition
 
 // The MIT License (MIT)
 //
